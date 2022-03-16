@@ -1,0 +1,29 @@
+body.popup {
+    min-width: 350px;
+}
+
+h4.popup-title {
+    margin: 15px 0 10px;
+}
+
+h4.popup-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+h4.popup-title > span {
+    line-height: 32px;
+}
+
+h4.popup-title button {
+    padding: 7px 12px;
+    margin-bottom: 0;
+}
+
+.popup-title-wrapper {
+    margin-bottom: 0;
+}
+
+.submit-form-wrapper {
+    margin-top: 20px;
+}

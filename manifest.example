@@ -1,0 +1,28 @@
+[docs](https://developer.chrome.com/docs/extensions/mv3/devguide/)
+
+{
+    "name": "Getting Started Example",
+    "description": "Build an Extension!",
+    "version": "1.0",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "storage",  //for save data about logic of plugin
+        "tabs", //for run chrome.tabs.query and get current open tab url address
+        "scripting", //for run command chrome.scripting.executeScript
+    ],
+    "action": {
+        "default_popup": "popup/popup.html"
+    },
+    "host_permissions": ["https://*/*"] #unblock run script for provided pages (https://developer.chrome.com/docs/extensions/mv3/declare_permissions/#host-permissions)
+}
+
+
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = chrome.extension.getURL('myscript.js');
+document.getElementsByTagName('head')[0].appendChild(script);
+
+document.getElementsByTagName('body')[0].style.background = 'red'
