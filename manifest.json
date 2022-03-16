@@ -1,6 +1,6 @@
 {
-    "name": "Getting Started Example",
-    "description": "Build an Extension!",
+    "name": "Fill Form Fields",
+    "description": "Extension which helps with filling values into the fields!",
     "version": "1.0",
     "manifest_version": 3,
     "background": {
@@ -13,6 +13,10 @@
     ],
     "action": {
         "default_popup": "popup.html"
+    },
+    "options_ui": {
+        "page": "options.html",
+        "browser_style": false
     },
     "content_scripts":[
         {

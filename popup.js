@@ -1,83 +1,18 @@
-const configuration = {
-    "title": "GPP Fill Form Fields",
-    "fields": [
-        {
-            "label": "Search Query",
-            "key": "searchQuery",
-            "selector": "#searchQuery"
-        },
-        {
-            "label": "Access Token",
-            "key": "accessToken",
-            "selector": "#access-token"
-        },
-        {
-            "label": "User ID",
-            "selector": "#user-id"
-        },
-        {
-            "label": "Universe",
-            "selector": "#universe",
-            "type": "select",
-            "options": ["wh-eu-de", "wh-mga"]
-        },
-        {
-            "label": "Environment",
-            "selector": "#environment",
-            "type": "select",
-            "options": ["pp1", "pp2", "pp3"]
-        },
-        {
-            "label": "Locale",
-            "selector": "#locale",
-            "type": "select",
-            "options": ["en_US", "en_GB"]
-        }
-    ]
-};
+const FFF_CONFIGURATION = 'FFF_CONFIGURATION';
+const FFF_SAVED_VALUES = 'FFF_SAVED_VALUES';
 
-function toCamelCase(str) {
+function toCamelCase(str = "") {
     return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();
     }).replace(/\s+/g, '');
 }
 
-async function setupStatus() {
-    try {
-        const isActiveKey = "gpp-form-active";
-        const isActive = await getStorageSyncValue(isActiveKey)
-
-        if (isActive === "true") {
-            setBadge("ON");
-            return;
-        }
-
-        setBadge("OFF");
-    } catch (error) {
-        console.error(error)
-    };
-}
-
-async function checkPluginStatus() {
-    try {
-        const isActiveKey = "gpp-form-active";
-        const isActive = await getStorageSyncValue(isActiveKey)
-        if (isActive === undefined) {
-            setStorageSyncValue(isActiveKey, "false");
-        }
-
-        if (isActive === "true") {
-            setStorageSyncValue(isActiveKey, "false");
-        }
-
-        if (isActive === "false") {
-            setStorageSyncValue(isActiveKey, "true");
-        }
-
-        await setupStatus();
-    } catch (error) {
-        console.error(error)
-    };
+function getStorageSyncValue(key) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get([key], function(result) {
+            resolve(JSON.parse(result[key]));
+        });
+    });
 }
 
 function setStorageSyncValue(key, value = "") {
@@ -86,21 +21,12 @@ function setStorageSyncValue(key, value = "") {
     });
 }
 
-function getStorageSyncValue(key) {
-    return new Promise((resolve, reject) => {
-        chrome.storage.sync.get([key], function(result) {
-            console.log('Value currently is ' + result[key]);
-            resolve(result[key]);
-        });
-    });
-}
-
 function setBadge(text = "") {
     chrome.action.setBadgeText({ text });
 }
 
-function renderInput(selector, name) {
-    const parent = document.querySelector(selector);
+function renderInput(name, selector = "") {
+    const parent = document.querySelector('#form-data');
     const div = document.createElement("div");
     const label = document.createElement('label');
     const input = document.createElement('input');
@@ -108,6 +34,7 @@ function renderInput(selector, name) {
     label.innerText = name;
     input.setAttribute('id', toCamelCase(name));
     input.setAttribute('type', 'text');
+    input.dataset.selector = selector;
 
     div.appendChild(label);
     div.appendChild(input);
@@ -115,14 +42,15 @@ function renderInput(selector, name) {
     parent.appendChild(div);
 }
 
-function renderSelect(selector, name, options = []) {
-    const parent = document.querySelector(selector);
+function renderSelect(name, options = [], selector = "") {
+    const parent = document.querySelector('#form-data');
     const div = document.createElement("div");
     const label = document.createElement('label');
     const select = document.createElement('select');
     label.setAttribute('for', toCamelCase(name));
     label.innerText = name;
     select.setAttribute('id', toCamelCase(name));
+    select.dataset.selector = selector;
 
     for (let i = 0; i < options.length; i++) {
         const option = document.createElement("option");
@@ -134,39 +62,39 @@ function renderSelect(selector, name, options = []) {
     div.appendChild(label);
     div.appendChild(select);
 
-    console.log('select', select);
-
     parent.appendChild(div);
 }
 
-function displayFields() {
+async function displayFields() {
+    const configuration = await getStorageSyncValue(FFF_CONFIGURATION);
+
     configuration.fields.forEach(field => {
+        console.log('field', field);
         if (field.type === "select") {
-            renderSelect('#form-data', field.label, field.options);
+            renderSelect(field.label, field.options, field.selector);
         } else {
-            renderInput('#form-data', field.label);
+            renderInput(field.label, field.selector);
         }
     });
 }
 
-function pluginStatus() {
-    const button = document.getElementById('button');
-    button && button.addEventListener('click', async (e) => {
-        checkPluginStatus();
-    })
+async function setFormValues() {
+    const savedValues = await getStorageSyncValue(FFF_SAVED_VALUES);
+    const form = document.getElementById('form-data');
+
+    for (const key in savedValues) {
+        form.elements[key].value = savedValues[key].value;
+    }
 }
 
-async function setFormValues() {
-    const form = document.getElementById('form-data');
-    const configuration = window.localStorage.getItem('configuration');
-    const parsedConfiguration = JSON.parse(configuration);
+function clearForm() {
+    const clearButton = document.getElementById("clear-form-data");
 
-    console.log(parsedConfiguration);
-    console.log(form.elements);
-
-    for (const key in parsedConfiguration) {
-        form.elements[key].value = parsedConfiguration[key]
-    }
+    clearButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        window.localStorage.removeItem(FFF_SAVED_VALUES);
+        window.location.reload();
+    });
 }
 
 function submitForm() {
@@ -177,41 +105,74 @@ function submitForm() {
         event.preventDefault();
 
         for (let i = 0; i < form.elements.length; i++) {
-            const { id, value, selector } = form.elements[i];
+            const { dataset, id, value } = form.elements[i];
+            const { selector } = dataset;
 
             if (id && value) {
                 objectToSave[id] = {
-                    selector,
-                    value
+                    id,
+                    value,
+                    selector
                 };
             }
         }
 
-        setStorageSyncValue('configuration', JSON.stringify(objectToSave));
-        window.localStorage.setItem('configuration', JSON.stringify(objectToSave));
+        setStorageSyncValue(FFF_SAVED_VALUES, JSON.stringify(objectToSave));
+        window.localStorage.setItem(FFF_SAVED_VALUES, JSON.stringify(objectToSave));
     });
 }
 
-function clearFormData() {
-    const clearButton = document.getElementById("clear-form-data");
+// async function checkPluginStatus() {
+//     try {
+//         const isActiveKey = "gpp-form-active";
+//         const isActive = await getStorageSyncValue(isActiveKey)
+//         if (isActive === undefined) {
+//             setStorageSyncValue(isActiveKey, "false");
+//         }
 
-    clearButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        window.localStorage.removeItem('configuration');
-        window.location.reload();
-    });
-}
+//         if (isActive === "true") {
+//             setStorageSyncValue(isActiveKey, "false");
+//         }
 
-// <label for="choose">Select</label>
-// <select id="choose">
-//     <option disabled selected>Please select</option>
-//     <option value="option-1">Option 1</option>
-//     <option value="option-2">Option 2</option>
-// </select>
+//         if (isActive === "false") {
+//             setStorageSyncValue(isActiveKey, "true");
+//         }
 
+//         await setupStatus();
+//     } catch (error) {
+//         console.error(error)
+//     };
+// }
+// function pluginStatus() {
+//     const button = document.getElementById('button');
+//     button && button.addEventListener('click', async (e) => {
+//         checkPluginStatus();
+//     })
+// }
 // pluginStatus();
+
+// async function setupStatus() {
+//     try {
+//         const isActiveKey = "gpp-form-active";
+//         const isActive = await getStorageSyncValue(isActiveKey)
+
+//         if (isActive === "true") {
+//             setBadge("ON");
+//             return;
+//         }
+
+//         setBadge("OFF");
+//     } catch (error) {
+//         console.error(error)
+//     };
+// }
 // setupStatus();
-displayFields();
-submitForm();
-setFormValues();
-clearFormData();
+
+async function main() {
+    await displayFields();
+    setFormValues();
+    clearForm();
+    submitForm();
+}
+
+main();
