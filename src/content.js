@@ -1,4 +1,5 @@
 import { getStorageSyncValue } from './utils/storage';
+import { FFF_STATUS, FFF_SAVED_VALUES, STATUS_ON } from './utils/consts';
 
 function setValueToInput(inputSelector = "", inputValue = "") {
     const element = document.querySelector(inputSelector)
@@ -15,7 +16,7 @@ function setValueToInput(inputSelector = "", inputValue = "") {
 
 async function setValuesToInputs() {
     try {
-        const savedValues = await getStorageSyncValue('FFF_SAVED_VALUES');
+        const savedValues = await getStorageSyncValue(FFF_SAVED_VALUES);
 
         for(let key in savedValues) {
             setValueToInput(savedValues[key].selector, savedValues[key].value);
@@ -26,9 +27,9 @@ async function setValuesToInputs() {
 }
 
 onload = async function() {
-    const status = await getStorageSyncValue('FFF_STATUS', false);
+    const status = await getStorageSyncValue(FFF_STATUS, false);
 
-    if (status === 'on') {
+    if (status === STATUS_ON) {
         setValuesToInputs();
     }
 }

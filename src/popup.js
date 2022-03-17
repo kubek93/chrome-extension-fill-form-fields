@@ -1,6 +1,6 @@
 import { setStorageSyncValue, getStorageSyncValue } from './utils/storage';
 import { renderEmptyInfo, renderInput, renderSelect } from './utils/render-html';
-import { FFF_STATUS, FFF_CONFIGURATION, FFF_SAVED_VALUES } from './utils/consts';
+import { FFF_STATUS, FFF_CONFIGURATION, FFF_SAVED_VALUES, STATUS_OFF } from './utils/consts';
 
 function setBadge(text = "") {
     chrome.action.setBadgeText({ text });
@@ -12,8 +12,6 @@ async function displayFields() {
     if (!configuration.fields) {
         renderEmptyInfo();
     }
-
-    console.log(configuration);
 
     if (configuration.title) {
         document.getElementById('extension-title').innerText = configuration.title;
@@ -31,8 +29,6 @@ async function displayFields() {
 async function setFormValues() {
     const savedValues = await getStorageSyncValue(FFF_SAVED_VALUES);
     const form = document.getElementById('form-data');
-
-    console.log(savedValues);
 
     if (!form.elements || !savedValues) {
         return;
@@ -90,7 +86,7 @@ async function checkStatus() {
     try {
         const isActive = await getStorageSyncValue(FFF_STATUS, false);
 
-        if (isActive === "on") {
+        if (isActive === STATUS_ON) {
             setBadge("ON");
             body.classList.add('active');
             buttonOn.classList.add('disabled');
@@ -113,14 +109,14 @@ async function configureButtons() {
     const buttonOff = document.getElementById('button-off');
 
     buttonOn.addEventListener('click', async () => {
-        await setStorageSyncValue(FFF_STATUS, "on");
+        await setStorageSyncValue(FFF_STATUS, STATUS_ON);
         await checkStatus();
     });
 
     buttonOff.addEventListener('click', async () => {
         buttonOn.classList.add('disabled');
         buttonOff.classList.remove('disabled');
-        await setStorageSyncValue(FFF_STATUS, "off");
+        await setStorageSyncValue(FFF_STATUS, STATUS_OFF);
         await checkStatus();
     });
 }
