@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "rimraf public/build && node config/esbuild.js",
-    "dist": "sh config/release-dist.sh",
+    "dist": "rimraf dist && sh config/release-dist.sh",
     "dev": "rimraf public/build && node config/esbuild.dev.js --watch"
   },
   "repository": {
