@@ -1,0 +1,3 @@
+export const FFF_CONFIGURATION = 'FFF_CONFIGURATION';
+export const FFF_SAVED_VALUES = 'FFF_SAVED_VALUES';
+export const FFF_STATUS = 'FFF_STATUS';

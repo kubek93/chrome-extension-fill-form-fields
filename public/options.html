@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Options page</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/options.css">
+        <link rel="stylesheet" href="lib/jsoneditor.min.css">
+        <script src="lib/jsoneditor.min.js"></script>
+    </head>
+    <body class="options">
+        <h1>
+            <span>Configuration of extension</span>
+            <button id="reset-configuration">Reset configuration</button>
+        </h1>
+        <div id="jsoneditor" style="width: 1000px; height: 450px;"></div>
+        <div class="submit-form-wrapper">
+            <button id="submit-configuration">Save</button>
+        </div>
+        <script src="build/options.js" defer></script>
+    </body>
+</html>

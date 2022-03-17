@@ -1,3 +1,5 @@
+import { getStorageSyncValue } from './utils/storage';
+
 function setValueToInput(inputSelector = "", inputValue = "") {
     const element = document.querySelector(inputSelector)
 
@@ -11,15 +13,6 @@ function setValueToInput(inputSelector = "", inputValue = "") {
     }
 }
 
-function getStorageSyncValue(key) {
-    return new Promise((resolve, reject) => {
-        chrome.storage.sync.get([key], function(result = {}) {
-            const response = result[key] || "{}";
-            resolve(JSON.parse(response));
-        });
-    });
-}
-
 async function setValuesToInputs() {
     try {
         const savedValues = await getStorageSyncValue('FFF_SAVED_VALUES');
@@ -30,20 +23,6 @@ async function setValuesToInputs() {
     } catch (error) {
         console.error(error)
     };
-}
-
-function getStorageSyncValue(key, json = true) {
-    return new Promise((resolve, reject) => {
-        chrome.storage.sync.get([key], function(result) {
-            if (json) {
-                const response = result ? result[key] : "{}";
-
-                resolve(JSON.parse(response));
-            } else {
-                resolve(result[key]);
-            }
-        });
-    });
 }
 
 onload = async function() {

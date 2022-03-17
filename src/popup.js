@@ -1,82 +1,20 @@
-const FFF_STATUS = 'FFF_STATUS';
-const FFF_CONFIGURATION = 'FFF_CONFIGURATION';
-const FFF_SAVED_VALUES = 'FFF_SAVED_VALUES';
-
-function toCamelCase(str = "") {
-    return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-      return index === 0 ? word.toLowerCase() : word.toUpperCase();
-    }).replace(/\s+/g, '');
-}
-
-function getStorageSyncValue(key, json = true) {
-    return new Promise((resolve, reject) => {
-        chrome.storage.sync.get([key], function(result) {
-            if (json) {
-                const response = result ? result[key] : "{}";
-
-                resolve(JSON.parse(response));
-            } else {
-                resolve(result[key]);
-            }
-        });
-    });
-}
-
-function setStorageSyncValue(key, value = "") {
-    chrome.storage.sync.set({[key]: value}, function() {
-        console.log('Value is set to ' + value);
-    });
-}
+import { setStorageSyncValue, getStorageSyncValue } from './utils/storage';
+import { renderEmptyInfo, renderInput, renderSelect } from './utils/render-html';
+import { FFF_STATUS, FFF_CONFIGURATION, FFF_SAVED_VALUES } from './utils/consts';
 
 function setBadge(text = "") {
     chrome.action.setBadgeText({ text });
 }
 
-function renderInput(name, selector = "") {
-    const parent = document.querySelector('#form-data');
-    const div = document.createElement("div");
-    const label = document.createElement('label');
-    const input = document.createElement('input');
-    label.setAttribute('for', toCamelCase(name));
-    label.innerText = name;
-    input.setAttribute('id', toCamelCase(name));
-    input.setAttribute('type', 'text');
-    input.dataset.selector = selector;
-
-    div.appendChild(label);
-    div.appendChild(input);
-
-    parent.appendChild(div);
-}
-
-function renderSelect(name, options = [], selector = "") {
-    const parent = document.querySelector('#form-data');
-    const div = document.createElement("div");
-    const label = document.createElement('label');
-    const select = document.createElement('select');
-    label.setAttribute('for', toCamelCase(name));
-    label.innerText = name;
-    select.setAttribute('id', toCamelCase(name));
-    select.dataset.selector = selector;
-
-    for (let i = 0; i < options.length; i++) {
-        const option = document.createElement("option");
-        option.value = options[i];
-        option.text = options[i];
-        select.appendChild(option);
-    }
-
-    div.appendChild(label);
-    div.appendChild(select);
-
-    parent.appendChild(div);
-}
-
 async function displayFields() {
     const configuration = await getStorageSyncValue(FFF_CONFIGURATION);
 
-    configuration.fields.forEach(field => {
-        if (field.type === "select") {
+    if (!configuration.fields) {
+        renderEmptyInfo();
+    }
+
+    configuration.fields && configuration.fields.forEach(field => {
+        if (field.options && field.options.length) {
             renderSelect(field.label, field.options, field.selector);
         } else {
             renderInput(field.label, field.selector);

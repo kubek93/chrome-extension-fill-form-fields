@@ -1,0 +1,25 @@
+{
+  "name": "chrome-extension-fill-form-fields",
+  "version": "1.0.0",
+  "description": "Extension is able to fill form fields with predefined values.",
+  "main": "background.js",
+  "type": "module",
+  "scripts": {
+    "build": "rimraf public/build && node esbuild.js",
+    "dev": "rimraf public/build && node esbuild.dev.js --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubek93/chrome-extension-fill-form-fields.git"
+  },
+  "author": "Jakub Michnowicz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kubek93/chrome-extension-fill-form-fields/issues"
+  },
+  "homepage": "https://github.com/kubek93/chrome-extension-fill-form-fields#readme",
+  "devDependencies": {
+    "esbuild": "^0.14.27",
+    "rimraf": "^3.0.2"
+  }
+}

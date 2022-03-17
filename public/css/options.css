@@ -1,0 +1,13 @@
+.options h1 {
+    display: flex;
+    justify-content: space-between;
+}
+
+.options h1 span {
+    line-height: 42px;
+}
+
+.submit-form-wrapper {
+    margin-top: 10px;
+    text-align: right;
+}
