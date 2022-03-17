@@ -5,8 +5,9 @@
   "main": "background.js",
   "type": "module",
   "scripts": {
-    "build": "rimraf public/build && node esbuild.js",
-    "dev": "rimraf public/build && node esbuild.dev.js --watch"
+    "build": "rimraf public/build && node config/esbuild.js",
+    "dist": "sh config/release-dist.sh",
+    "dev": "rimraf public/build && node config/esbuild.dev.js --watch"
   },
   "repository": {
     "type": "git",
