@@ -2,7 +2,6 @@ function setValueToInput(inputSelector = "", inputValue = "") {
     const element = document.querySelector(inputSelector)
 
     if (element) {
-        console.log(element);
         element.value = inputValue;
         element.setAttribute('value', inputValue);
         element.dispatchEvent(new Event('change'));
@@ -14,8 +13,9 @@ function setValueToInput(inputSelector = "", inputValue = "") {
 
 function getStorageSyncValue(key) {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get([key], function(result) {
-            resolve(JSON.parse(result[key]));
+        chrome.storage.sync.get([key], function(result = {}) {
+            const response = result[key] || "{}";
+            resolve(JSON.parse(response));
         });
     });
 }
@@ -25,7 +25,6 @@ async function setValuesToInputs() {
         const savedValues = await getStorageSyncValue('FFF_SAVED_VALUES');
 
         for(let key in savedValues) {
-            console.log(savedValues[key]);
             setValueToInput(savedValues[key].selector, savedValues[key].value);
         }
     } catch (error) {
@@ -33,7 +32,24 @@ async function setValuesToInputs() {
     };
 }
 
-onload = async function(e){
-    setValuesToInputs();
-    // document.getElementsByTagName('body')[0].style.background = 'red';
+function getStorageSyncValue(key, json = true) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get([key], function(result) {
+            if (json) {
+                const response = result ? result[key] : "{}";
+
+                resolve(JSON.parse(response));
+            } else {
+                resolve(result[key]);
+            }
+        });
+    });
+}
+
+onload = async function() {
+    const status = await getStorageSyncValue('FFF_STATUS', false);
+
+    if (status === 'on') {
+        setValuesToInputs();
+    }
 }

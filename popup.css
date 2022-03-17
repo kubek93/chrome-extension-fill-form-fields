@@ -2,8 +2,16 @@ body.popup {
     min-width: 350px;
 }
 
+body.popup .body-wrapper {
+    display: none;
+}
+
+body.popup.active .body-wrapper {
+    display: block;
+}
+
 h4.popup-title {
-    margin: 15px 0 10px;
+    margin: 15px 0;
 }
 
 h4.popup-title {

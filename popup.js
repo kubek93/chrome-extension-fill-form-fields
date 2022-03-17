@@ -1,3 +1,4 @@
+const FFF_STATUS = 'FFF_STATUS';
 const FFF_CONFIGURATION = 'FFF_CONFIGURATION';
 const FFF_SAVED_VALUES = 'FFF_SAVED_VALUES';
 
@@ -7,10 +8,16 @@ function toCamelCase(str = "") {
     }).replace(/\s+/g, '');
 }
 
-function getStorageSyncValue(key) {
+function getStorageSyncValue(key, json = true) {
     return new Promise((resolve, reject) => {
         chrome.storage.sync.get([key], function(result) {
-            resolve(JSON.parse(result[key]));
+            if (json) {
+                const response = result ? result[key] : "{}";
+
+                resolve(JSON.parse(response));
+            } else {
+                resolve(result[key]);
+            }
         });
     });
 }
@@ -69,7 +76,6 @@ async function displayFields() {
     const configuration = await getStorageSyncValue(FFF_CONFIGURATION);
 
     configuration.fields.forEach(field => {
-        console.log('field', field);
         if (field.type === "select") {
             renderSelect(field.label, field.options, field.selector);
         } else {
@@ -122,54 +128,53 @@ function submitForm() {
     });
 }
 
-// async function checkPluginStatus() {
-//     try {
-//         const isActiveKey = "gpp-form-active";
-//         const isActive = await getStorageSyncValue(isActiveKey)
-//         if (isActive === undefined) {
-//             setStorageSyncValue(isActiveKey, "false");
-//         }
+async function checkStatus() {
+    const body = document.querySelector('body.popup');
+    const buttonOn = document.getElementById('button-on');
+    const buttonOff = document.getElementById('button-off');
 
-//         if (isActive === "true") {
-//             setStorageSyncValue(isActiveKey, "false");
-//         }
+    try {
+        const isActive = await getStorageSyncValue(FFF_STATUS, false);
 
-//         if (isActive === "false") {
-//             setStorageSyncValue(isActiveKey, "true");
-//         }
+        if (isActive === "on") {
+            setBadge("ON");
+            body.classList.add('active');
+            buttonOn.classList.add('disabled');
+            buttonOff.classList.remove('disabled');
+            return;
+        }
 
-//         await setupStatus();
-//     } catch (error) {
-//         console.error(error)
-//     };
-// }
-// function pluginStatus() {
-//     const button = document.getElementById('button');
-//     button && button.addEventListener('click', async (e) => {
-//         checkPluginStatus();
-//     })
-// }
-// pluginStatus();
+        body.classList.remove('active');
+        buttonOn.classList.remove('disabled');
+        buttonOff.classList.add('disabled');
+        setBadge("OFF");
+        return;
+    } catch (error) {
+        console.error(error)
+    };
+}
 
-// async function setupStatus() {
-//     try {
-//         const isActiveKey = "gpp-form-active";
-//         const isActive = await getStorageSyncValue(isActiveKey)
+async function configureButtons() {
+    const buttonOn = document.getElementById('button-on');
+    const buttonOff = document.getElementById('button-off');
 
-//         if (isActive === "true") {
-//             setBadge("ON");
-//             return;
-//         }
+    buttonOn.addEventListener('click', async () => {
+        await setStorageSyncValue(FFF_STATUS, "on");
+        await checkStatus();
+    });
 
-//         setBadge("OFF");
-//     } catch (error) {
-//         console.error(error)
-//     };
-// }
-// setupStatus();
+    buttonOff.addEventListener('click', async () => {
+        buttonOn.classList.add('disabled');
+        buttonOff.classList.remove('disabled');
+        await setStorageSyncValue(FFF_STATUS, "off");
+        await checkStatus();
+    });
+}
 
 async function main() {
+    await checkStatus();
     await displayFields();
+    configureButtons();
     setFormValues();
     clearForm();
     submitForm();

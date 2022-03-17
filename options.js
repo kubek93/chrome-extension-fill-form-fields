@@ -26,8 +26,9 @@ const defaultConfigurationJson = {
 
 function getStorageSyncValue(key) {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get([key], function(result) {
-            resolve(result[key]);
+        chrome.storage.sync.get([key], function(result = {}) {
+            const response = result[key] || "{}";
+            resolve(JSON.parse(response));
         });
     });
 }

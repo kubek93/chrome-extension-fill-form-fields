@@ -93,12 +93,12 @@ label {
     width: 100%;
   }
 
-  button {
-    margin-bottom: 0;
-    }
+button {
+  margin-bottom: 0;
+}
 
-    button.disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
+button.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}

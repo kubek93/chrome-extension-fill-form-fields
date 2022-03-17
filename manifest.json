@@ -1,8 +1,12 @@
 {
+    "author": "Jakub Michnowicz",
     "name": "Fill Form Fields",
-    "description": "Extension which helps with filling values into the fields!",
+    "description": "Extension is able to fill form fields with predefined values.",
     "version": "1.0",
     "manifest_version": 3,
+    "action": {
+        "default_popup": "popup.html"
+    },
     "background": {
         "service_worker": "background.js"
     },
@@ -11,26 +15,17 @@
         "tabs",
         "scripting"
     ],
-    "action": {
-        "default_popup": "popup.html"
-    },
+    "host_permissions": ["<all_urls>"],
     "options_ui": {
         "page": "options.html",
         "browser_style": false
     },
     "content_scripts":[
         {
-            "matches": [
-                "http://*/*",
-                "https://*/*"
-            ],
+            "matches": ["<all_urls>"],
             "js": [
                 "content.js"
             ]
         }
-    ],
-    "host_permissions": [
-        "http://*/*",
-        "https://*/*"
     ]
 }
