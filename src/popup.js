@@ -13,6 +13,12 @@ async function displayFields() {
         renderEmptyInfo();
     }
 
+    console.log(configuration);
+
+    if (configuration.title) {
+        document.getElementById('extension-title').innerText = configuration.title;
+    }
+
     configuration.fields && configuration.fields.forEach(field => {
         if (field.options && field.options.length) {
             renderSelect(field.label, field.options, field.selector);
@@ -26,7 +32,17 @@ async function setFormValues() {
     const savedValues = await getStorageSyncValue(FFF_SAVED_VALUES);
     const form = document.getElementById('form-data');
 
+    console.log(savedValues);
+
+    if (!form.elements || !savedValues) {
+        return;
+    }
+
     for (const key in savedValues) {
+        if (!form.elements[key]) {
+            return;
+        }
+
         form.elements[key].value = savedValues[key].value;
     }
 }
