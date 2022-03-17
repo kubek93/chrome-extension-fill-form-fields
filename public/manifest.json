@@ -4,6 +4,9 @@
     "description": "Extension is able to fill form fields with predefined values.",
     "version": "1.0",
     "manifest_version": 3,
+    "icons": {
+        "128": "img/icon.png"
+    },
     "action": {
         "default_popup": "popup.html"
     },

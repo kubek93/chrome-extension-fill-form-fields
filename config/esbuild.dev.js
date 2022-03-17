@@ -11,5 +11,5 @@ esbuild.build({
     watch: true,
     outdir: 'public/build'
   }).then(result => {
-    console.log('watching...')
+    console.log('Dev server started..')
   });
